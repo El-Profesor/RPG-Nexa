@@ -15,7 +15,7 @@ public abstract class Character {
         this.experience = experience;
     }
 
-    // Méthodes liées à l'action de « combattre »
+    // Méthodes abstraites liées à l'action de « combattre »
     public abstract int attack();
     public abstract int defend();
 }

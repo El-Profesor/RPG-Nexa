@@ -77,7 +77,7 @@ public class GameLogic {
 
     // Méthode de mise en pause du jeu tant que l'utilisateur n'a pas effectué sa saisie
     public static void waitForInput() {
-        System.out.println("Appuyez sur Entrée pour continuer...");
+        System.out.println("Appuyez sur n'importe quel caractère puis « Entrée » pour continuer...");
         scanner.next();
     }
 
@@ -92,7 +92,7 @@ public class GameLogic {
         do {
             cleanOutput(true);
             mainMessage("Veuillez choisir votre nom de joueur", null, true);
-            System.out.print(">>> "); // TODO Implement a printPrompt() method
+            System.out.print(">>> "); // TODO Implement a printPrompt() method ?
             name = scanner.next();
             cleanOutput(true);
             mainMessage("Le nom choisi est « " + name + " ».\nÊtes-vous sûr de votre choix ?", null, true);
@@ -118,7 +118,7 @@ public class GameLogic {
 
     // Méthode destinée à passer au niveau suivant en fonction des points d'expérience
     public static void goToNextLevel() {
-        // TODO Implement the following with pattern matching
+        // TODO Implement the following with pattern matching ?
         if (player.experience >= 10 && level == 1) {
             level++;
             placeNumber++;
@@ -198,30 +198,26 @@ public class GameLogic {
         printLine(50, null);
         System.out.println("XP : " + player.experience);
         printLine(50, null);
-        System.out.println("Argent : " + player.getCoins());
+        System.out.println("Argent : " + player.coins);
         printLine(50, null);
-        System.out.println("Argent : " + player.getCoins());
-        printLine(50, null);
-        System.out.println("Nombre d'élixirs sorts : " + player.getElixirs());
-        printLine(50, null);
-        System.out.println("Argent : " + player.getCoins());
+        System.out.println("Nombre d'élixirs : " + player.elixirs);
         printLine(50, null);
 
-        if (player.getAttackSkillsNumber() > 0) {
-            System.out.println("Attaque : " + player.getAttackSkill());
+        if (player.attackSkillsNumber > 0) {
+            System.out.println("Attaque : " + player.attackSkills[player.attackSkillsNumber - 1]);
             printLine(50, null);
         }
-        if (player.getDefenseSkillsNumber() > 0) {
-            System.out.println("Défense : " + player.getDefenseSkill());
+        if (player.defenseSkillsNumber > 0) {
+            System.out.println("Défense : " + player.defenseSkills[player.defenseSkillsNumber - 1]);
             printLine(50, null);
         }
 
-        waitForInput(); // TODO Fix strange console clear behavior after character infos are printed
+        waitForInput();
     }
 
     public static void purchase() {
         cleanOutput(true);
-        int randomPrice = (int) (Math.random() * (10 + player.getElixirs() * 3) + 10 + player.getElixirs());
+        int randomPrice = (int) (Math.random() * (10 + player.elixirs * 3) + 10 + player.elixirs);
         mainMessage("Vous rencontrez un marchand qui cherche à vous vendre un élixir pour un total de " + randomPrice + " coins.", null, false);
         printLine(50, null);
         System.out.println("Acceptez-vous sa proposition ?");
@@ -230,12 +226,12 @@ public class GameLogic {
         int choice = readChoiceInt(">>> ", 2);
         if (choice == 1) {
             cleanOutput(true);
-            if (player.getCoins() >= randomPrice) {
+            if (player.coins >= randomPrice) {
                 mainMessage("Vous venez d'acquérir l'élixir du marchand.", null, false);
-                player.setElixirs(player.getElixirs() + 1);
-                player.setCoins(player.getCoins() - randomPrice);
+                player.elixirs++;
+                player.coins++;
             } else {
-                mainMessage("Il vous manque " + (randomPrice - player.getCoins()) + " coins pour acheter l'élixir.", null, false);
+                mainMessage("Il vous manque " + (randomPrice - player.coins) + " coins pour acheter l'élixir.", null, false);
             }
             waitForInput();
         }
@@ -243,8 +239,8 @@ public class GameLogic {
 
     public static void rest() {
         cleanOutput(true);
-        if (player.getRests() >= 1) {
-            mainMessage("Vous pouvez encore reprendre des forces " + player.getRests() + " fois. Avez-vous besoin de reprendre des forces ?", null, false);
+        if (player.rests >= 1) {
+            mainMessage("Vous pouvez encore reprendre des forces " + player.rests + " fois. Avez-vous besoin de reprendre des forces ?", null, false);
             System.out.println("[1] Oui.");
             System.out.println("[2] Non, je me sens en forme.");
             int choice = readChoiceInt(">>> ", 2);
@@ -254,7 +250,7 @@ public class GameLogic {
                     int restHealthEffect = (int) (Math.random() * ((double) player.experience / 4 + 1) + 10);
                     player.health = Math.min(player.health + restHealthEffect, player.maxHealth);
                     System.out.println("Vous avez pu reprendre des forces : vous disposez désormais de " + player.health + " points de vie.");
-                    player.setRests(player.getRests() - 1);
+                    player.rests--;
                 } else {
                     System.out.println("Inutile de reprendre des forces, vous êtes au maximum de vos capacités.");
                 }
@@ -267,7 +263,7 @@ public class GameLogic {
     public static void startFight() {
         cleanOutput(true);
         mainMessage("Vous venez de rencontrer un ennemi...", null, false);
-        waitForInput(); // TODO Fix strange console clear behavior after character infos are printed
+        waitForInput();
         String enemyName = enemies[(int) (Math.random() * enemies.length)];
         Enemy enemy = new Enemy(enemyName, player.experience);
         fight(enemy);
@@ -277,8 +273,8 @@ public class GameLogic {
         boolean isFightOngoing = true;
         while (isFightOngoing) {
             cleanOutput(true);
-            mainMessage("Ennemi [ " + enemy.getName() + " ] :\n- Points de vie : " + enemy.getHealth() + "\n- Points d'expérience : " + enemy.getExperience(), null, false);
-            mainMessage("Vous [ " + player.getName() + " ] :\n- Points de vie : " + player.getHealth() + "\n- Points d'expérience : " + player.getExperience(), null, false);
+            mainMessage("Ennemi [ " + enemy.name + " ] :\n- Points de vie : " + enemy.health + "\n- Points d'expérience : " + enemy.experience, null, false);
+            mainMessage("Vous [ " + player.name + " ] :\n- Points de vie : " + player.health + "\n- Points d'expérience : " + player.experience, null, false);
             System.out.println("Veuillez choisir une action :");
             printLine(50, null);
             System.out.println("[1] Combattre.");
@@ -298,31 +294,31 @@ public class GameLogic {
                     if (dealtDamage < 0) {
                         dealtDamage = 0;
                     }
-                    player.setHealth(player.getHealth() - takenDamage);
-                    enemy.setHealth(enemy.getHealth() - dealtDamage);
+                    player.health -= takenDamage;
+                    enemy.health -= dealtDamage;
                     cleanOutput(true);
                     mainMessage("Bilan du combat", null, false);
-                    System.out.println("Vous avez infligé des dommages de " + dealtDamage + " points à " + enemy.getName() + ".");
+                    System.out.println("Vous avez infligé des dommages de " + dealtDamage + " points à " + enemy.name + ".");
                     printLine(50, null);
-                    System.out.println(enemy.getName() + " vous a infligé des dommages de " + takenDamage + " points.");
+                    System.out.println(enemy.name + " vous a infligé des dommages de " + takenDamage + " points.");
                     waitForInput();
-                    if (player.getHealth() <= 0) {
+                    if (player.health <= 0) {
                         gameOver();
                         isFightOngoing = false;
-                    } else if (enemy.getHealth() <= 0) {
+                    } else if (enemy.health <= 0) {
                         cleanOutput(true);
-                        mainMessage("Vous avez vaincu " + enemy.getName() + ".", null, false);
-                        player.setExperience(player.getExperience() + enemy.getExperience());
-                        mainMessage("Vous avez gagné " + enemy.getExperience() + " points d'expérience.", null, false);
+                        mainMessage("Vous avez vaincu " + enemy.name + ".", null, false);
+                        player.experience += enemy.experience;
+                        mainMessage("Vous avez gagné " + enemy.experience + " points d'expérience.", null, false);
                         boolean increaseRests = Math.random() * 5 + 1 <= 2.25;
                         int increaseCoins = (int) (Math.random() * enemy.experience);
                         if (increaseRests) {
-                            player.setRests(player.getRests() + 1);
+                            player.rests++;
                             System.out.println("Vous avez gagné la possibilité de reprendre des forces.");
                         }
                         if (increaseCoins > 0) {
-                            player.setCoins(player.getCoins() + increaseCoins);
-                            System.out.println("Vous avez dérobé " + increaseCoins + " coins sur la dépouille de " + enemy.getName());
+                            player.coins += increaseCoins;
+                            System.out.println("Vous avez dérobé " + increaseCoins + " coins sur la dépouille de " + enemy.name);
                         }
                         waitForInput();
                         isFightOngoing = false;
@@ -330,8 +326,8 @@ public class GameLogic {
                     break;
                 case 2: // Utilisation d'un élixir
                     cleanOutput(true);
-                    if (player.getElixirs() > 0 && player.getHealth() < player.maxHealth) {
-                        mainMessage("Êtes-vous certain de vouloir utiliser l'un de vos élixirs ? Il vous en reste " + player.getElixirs() + ".", null, false);
+                    if (player.elixirs > 0 && player.health < player.maxHealth) {
+                        mainMessage("Êtes-vous certain de vouloir utiliser l'un de vos élixirs ? Il vous en reste " + player.elixirs + ".", null, false);
                         System.out.println("[1] Oui.");
                         System.out.println("[2] Non, pas pour le moment.");
                         choice = readChoiceInt(">>> ", 2);
@@ -347,7 +343,7 @@ public class GameLogic {
                             case 3:
                                 isGameRunning = false;
                             default:
-                                // TODO To be implemented if necessary
+                                // TODO To be implemented if necessary...
                                 break;
                         }
                     } else {
@@ -364,12 +360,12 @@ public class GameLogic {
                             waitForInput();
                             break;
                         } else {
-                            mainMessage(enemy.getName() + " est parvenu à vous rattraper", null, false);
+                            mainMessage(enemy.name + " est parvenu à vous rattraper", null, false);
                             takenDamage = enemy.attack();
                             mainMessage("Vous avez perdu " + takenDamage + " points de vie.", null, false);
-                            // FIXME Soustraction des dégâts occasionnés ?
-                            waitForInput(); // TODO Fix strange console clear behavior after character infos are printed
-                            if (player.getHealth() <= 0) {
+                            // FIXME Need to subtract taken damage ?
+                            waitForInput();
+                            if (player.health <= 0) {
                                 gameOver();
                             }
                         }
@@ -379,7 +375,7 @@ public class GameLogic {
                     }
                     break;
                 default:
-                    // TODO To be implemented if necessary
+                    // TODO To be implemented if necessary...
                     break;
             }
         }
@@ -405,7 +401,7 @@ public class GameLogic {
     public static void gameOver() {
         cleanOutput(true);
         mainMessage("Vous venez de mourir...", null, false);
-        mainMessage("Vous avez gagné " + player.getExperience() + " points d'expérience au cours de cette partie.", null, false);
+        mainMessage("Vous avez gagné " + player.experience + " points d'expérience au cours de cette partie.", null, false);
         System.out.println("Vous aurez peut-être plus de chance la prochaine fois.");
         isGameRunning = false;
     }
@@ -425,7 +421,7 @@ public class GameLogic {
                 case 3:
                     isGameRunning = false;
                 default:
-                    // TODO To be implemented if necessary
+                    // TODO To be implemented if necessary...
                     break;
             }
         }
